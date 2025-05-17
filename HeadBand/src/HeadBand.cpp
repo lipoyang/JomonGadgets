@@ -1,11 +1,13 @@
 #include <PollingTimer.h>
 #include "BleNeoPixelCentral.h"
 #include "PostureSensor.h"
+#include "HeadBand.h"
 
 // ピン番号
 #define PIN_HR    A0  // 心拍センサー
 #define PIN_BTN   D1  // ボタン 
 #define PIN_VBUS  D2  // USB接続検出用
+#define PIN_BUZZ  D3  // ブザー
 #define PIN_SS    D7  // SPIセレクト (BMI160)
 
 // 動作モード
@@ -60,6 +62,43 @@ void led_show()
     }
 }
 
+// ブザーの音を鳴らす
+void buzz_out(int pattern)
+{
+    switch(pattern){
+        case PTN_POWER_ON:    // 電源ON
+            tone(PIN_BUZZ, F_C5, T_BUZZ);
+            delay(T_BUZZ);
+            break;
+        case PTN_CONNECT:     // 接続
+            tone(PIN_BUZZ, F_C4, T_BUZZ);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_D4, T_BUZZ);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_E4, T_BUZZ);
+            delay(T_BUZZ);
+            break;
+        case PTN_DISCONNECT:  // 切断
+            tone(PIN_BUZZ, F_E4, T_BUZZ);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_D4, T_BUZZ);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_C4, T_BUZZ);
+            delay(T_BUZZ);
+            break;
+        case PTN_HEART_RATE:  // 心拍モード
+            tone(PIN_BUZZ, F_G4, T_BUZZ_SHORT);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_G4, T_BUZZ_SHORT);
+            delay(T_BUZZ_SHORT);
+            break;
+        case PTN_POSTURE:     // 姿勢モード
+            tone(PIN_BUZZ, F_G4, T_BUZZ);
+            delay(T_BUZZ);
+            break;
+    }
+}
+
 // 初期化
 void setup()
 {
@@ -76,6 +115,9 @@ void setup()
     }
     Serial.println("Hello!");
     led_show();
+
+    // 起動音
+    buzz_out(PTN_POWER_ON);
     
     // BLE NeoPixel セントラルを開始
     bleNeoPixelCentral.begin();
