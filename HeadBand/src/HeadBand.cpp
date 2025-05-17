@@ -1,4 +1,5 @@
 #include <PollingTimer.h>
+#include <Button.h>
 #include "BleNeoPixelCentral.h"
 #include "PostureSensor.h"
 #include "HeadBand.h"
@@ -20,10 +21,11 @@ BleNeoPixel bleNeoPixelCentral;
 PostureSensor postureSensor;
 // 周期タイマ
 IntervalTimer interval1;
+// ボタン
+Button button;
 
 static int mode = MODE_POSTURE;   // 動作モード
 static bool isConnected = false;  // BLE接続中か？
-static int btn_prev = HIGH;       // ボタンの前回状態
 
 // LEDの初期化
 void led_init()
@@ -96,7 +98,20 @@ void buzz_out(int pattern)
             tone(PIN_BUZZ, F_G4, T_BUZZ);
             delay(T_BUZZ);
             break;
+        case PTN_CALIBRATING: // キャリブレーション中
+            tone(PIN_BUZZ, F_C4, T_BUZZ);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_D4, T_BUZZ);
+            delay(T_BUZZ);
+            break;
+        case PTN_CALIBRATED:  // キャリブレーション完了
+            tone(PIN_BUZZ, F_D4, T_BUZZ);
+            delay(T_BUZZ);
+            tone(PIN_BUZZ, F_C4, T_BUZZ);
+            delay(T_BUZZ);
+            break;
     }
+    pinMode(PIN_BUZZ, INPUT); // ブザーOFF
 }
 
 // 初期化
@@ -104,7 +119,8 @@ void setup()
 {
     // LEDとボタンの初期化
     led_init();
-    pinMode(PIN_BTN,   INPUT_PULLUP);
+    button.begin(PIN_BTN, true, 10); // (ピン番号, 負論理, デバウンス時間)
+    button.setHoldTime(T_LONG_PRESS);
 
     // Vbus検出 (USB接続時はシリアルポートを開くまで待つ)
     pinMode(PIN_VBUS, INPUT);
@@ -147,16 +163,20 @@ void loop()
         // 切断時
         else if(isConnected && !bleNeoPixelCentral.isConnected()){
             isConnected = false;
-            btn_prev = HIGH;
             Serial.println("BLE disconnected");
             led_show();
             buzz_out(PTN_DISCONNECT);
         }
         // 接続中
         if(isConnected){
-            // ボタンを押したらモード切替
-            int btn = digitalRead(PIN_BTN);
-            if(btn == LOW && btn_prev == HIGH){
+            button.read();
+            // ボタン長押しで姿勢センサのキャリブ開始
+            if(button.pressedFor(T_LONG_PRESS, T_LONG_INTERVAL)){
+                buzz_out(PTN_CALIBRATING);
+                Serial.println("Calibrating...");
+            }
+            // ボタン短押しでモード切替
+            else if(button.wasReleased()){
                 Serial.println("Button pressed");
                 mode = (mode + 1) % 2; // MODE_POSTURE <-> MODE_HEART_RATE
                 led_show();
@@ -166,7 +186,6 @@ void loop()
                     buzz_out(PTN_HEART_RATE);
                 }
             }
-            btn_prev = btn;
         }
     }
     

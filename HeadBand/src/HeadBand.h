@@ -16,7 +16,13 @@
 #define PTN_DISCONNECT  2
 #define PTN_HEART_RATE  3
 #define PTN_POSTURE     4
+#define PTN_CALIBRATING 5
+#define PTN_CALIBRATED  6
 
 // ブザーの長さ
 #define T_BUZZ          200
 #define T_BUZZ_SHORT    100
+
+// ボタン長押しの時間
+#define T_LONG_PRESS    1000
+#define T_LONG_INTERVAL 10000
