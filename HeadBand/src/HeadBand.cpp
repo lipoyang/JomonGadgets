@@ -142,6 +142,7 @@ void loop()
             isConnected = true;
             Serial.println("BLE connected");
             led_show();
+            buzz_out(PTN_CONNECT);
         }
         // 切断時
         else if(isConnected && !bleNeoPixelCentral.isConnected()){
@@ -149,6 +150,7 @@ void loop()
             btn_prev = HIGH;
             Serial.println("BLE disconnected");
             led_show();
+            buzz_out(PTN_DISCONNECT);
         }
         // 接続中
         if(isConnected){
@@ -158,6 +160,11 @@ void loop()
                 Serial.println("Button pressed");
                 mode = (mode + 1) % 2; // MODE_POSTURE <-> MODE_HEART_RATE
                 led_show();
+                if(mode == MODE_POSTURE){
+                    buzz_out(PTN_POSTURE);
+                }else{
+                    buzz_out(PTN_HEART_RATE);
+                }
             }
             btn_prev = btn;
         }
