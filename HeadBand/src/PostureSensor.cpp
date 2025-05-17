@@ -3,6 +3,9 @@
 #include <BMI160Gen.h>
 #include "PostureSensor.h"
 
+#define _DEBUG
+#define PIN_DEBUG  D4   // デバッグ用
+
 static const float F_PI=3.14159265f;
 static const int   DELTA_T_MSEC = 10; //[msec]
 static const float DELTA_T      = DELTA_T_MSEC / 1000.0f; //[sec]
@@ -25,6 +28,10 @@ float convertRawAcc(int aRaw)
 // 初期化
 void PostureSensor::begin(int pin_SS)
 {
+#ifdef _DEBUG
+    pinMode(PIN_DEBUG, OUTPUT);
+    digitalWrite(PIN_DEBUG, LOW);
+#endif
     // BMI160の初期化
     BMI160.begin(BMI160GenClass::SPI_MODE, pin_SS);
     //BMI160.begin(BMI160GenClass::I2C_MODE);
@@ -50,6 +57,12 @@ void PostureSensor::task()
     // 周期処理
     if(interval.elapsed())
     {
+#ifdef _DEBUG
+        static int toggle = 0;
+        digitalWrite(PIN_DEBUG, toggle);
+        toggle = 1 - toggle;
+#endif
+
         int gxRaw, gyRaw, gzRaw;         // raw gyro values
         int axRaw, ayRaw, azRaw;
         float gx, gy, gz;
@@ -84,7 +97,7 @@ void PostureSensor::task()
             th_z = k*(th_z + gz * DELTA_T) + (1 - k)*(tha_z);
         }
 
-#if 1   // デバッグ用
+#ifdef _DEBUG   // デバッグ用
         static int cnt = 0;
         if(cnt++ % 20 == 0){
             Serial.print("th_y: ");
