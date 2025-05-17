@@ -18,7 +18,10 @@ public:
     bool elapsed(){
         uint32_t now = micros();
         uint32_t elapsed_time = now - m_time;
-        if(elapsed_time >= m_interval){
+        if(elapsed_time >= m_interval * 2){
+            m_time = now;
+            return true;
+        }else if(elapsed_time >= m_interval){
             m_time += m_interval;
             return true;
         }else{
