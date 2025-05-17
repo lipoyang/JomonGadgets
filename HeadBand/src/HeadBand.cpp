@@ -4,6 +4,8 @@
 #include "PostureSensor.h"
 #include "HeadBand.h"
 
+#define _DEBUG
+
 // ピン番号
 #define PIN_HR    A0  // 心拍センサー
 #define PIN_BTN   D1  // ボタン 
@@ -150,6 +152,11 @@ void loop()
     bleNeoPixelCentral.task();
     // 姿勢センサのタスク
     postureSensor.task();
+    if(postureSensor.wasCalibrated()){
+        buzz_out(PTN_CALIBRATED);
+    }
+    float th_p = postureSensor.getPitch();
+    float th_r = postureSensor.getRoll();
 
     // 周期処理
     if(interval1.elapsed()){
@@ -174,6 +181,7 @@ void loop()
             if(button.pressedFor(T_LONG_PRESS, T_LONG_INTERVAL)){
                 buzz_out(PTN_CALIBRATING);
                 Serial.println("Calibrating...");
+                postureSensor.startCalibration();
             }
             // ボタン短押しでモード切替
             else if(button.wasReleased()){
@@ -187,6 +195,17 @@ void loop()
                 }
             }
         }
+#ifdef _DEBUG
+        static int cnt = 0;
+        if(cnt++ % 4 == 0){
+            Serial.print("th_p: ");
+            Serial.print(th_p);
+            Serial.print("\t");
+            Serial.print("th_r: ");
+            Serial.print(th_r);
+            Serial.println();
+        }
+#endif
     }
     
     // デバッグ用

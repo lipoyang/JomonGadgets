@@ -3,13 +3,15 @@
 #include <BMI160Gen.h>
 #include "PostureSensor.h"
 
-#define _DEBUG
+//#define _DEBUG
 #define PIN_DEBUG  D4   // デバッグ用
 
 static const float F_PI=3.14159265f;
 static const int   DELTA_T_MSEC = 10; //[msec]
 static const float DELTA_T      = DELTA_T_MSEC / 1000.0f; //[sec]
 static const float k = 0.99; // 相補フィルタ係数
+
+static const int CALIB_CNT_MAX = 300; // キャリブレーション回数
 
 // 角速度の換算
 float convertRawGyro(int gRaw)
@@ -32,6 +34,10 @@ void PostureSensor::begin(int pin_SS)
     pinMode(PIN_DEBUG, OUTPUT);
     digitalWrite(PIN_DEBUG, LOW);
 #endif
+    // 変数の初期化
+    th0_y = th_y = th_z = 0.0f;
+    isCalibrating = isCalibrated = false;
+
     // BMI160の初期化
     BMI160.begin(BMI160GenClass::SPI_MODE, pin_SS);
     //BMI160.begin(BMI160GenClass::I2C_MODE);
@@ -97,6 +103,19 @@ void PostureSensor::task()
             th_z = k*(th_z + gz * DELTA_T) + (1 - k)*(tha_z);
         }
 
+        // キャリブレーション
+        if(isCalibrating){
+            calibCnt++;
+            calibAcc += th_y;
+            if(calibCnt >= CALIB_CNT_MAX){
+                isCalibrating = false;
+                isCalibrated = true;
+                th0_y = calibAcc / (float)calibCnt;
+                Serial.print("Calibration done: ");
+                Serial.println(th0_y);
+            }
+        }
+
 #ifdef _DEBUG   // デバッグ用
         static int cnt = 0;
         if(cnt++ % 20 == 0){
@@ -132,4 +151,13 @@ void PostureSensor::task()
         }
 #endif  // デバッグ用
     }
+}
+
+void PostureSensor::startCalibration()
+{
+    // キャリブレーション開始
+    isCalibrating = true;
+    isCalibrated = false;
+    calibCnt = 0;
+    calibAcc = 0.0f;
 }
