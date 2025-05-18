@@ -116,6 +116,24 @@ void buzz_out(int pattern)
     pinMode(PIN_BUZZ, INPUT); // ブザーOFF
 }
 
+// 姿勢に応じた発光色データの送信
+void sendPosture(float th_p, float th_r)
+{
+    float th = max(fabs(th_p), fabs(th_r));
+    if(th > 30.0f) th = 30.0f;
+    //int h = 0x1000 - (int)(th * (float)0x1000 / 30.0f);
+    //if(h < 0) h = 0;
+    int dC = 50 - (int)(th * (float)50 / 30.0f);
+    if(dC < 0) dC = 0;
+//  int dV = 40 - (int)(th * (float)40 / 30.0f);
+//  if(dV < 0) dV = 0;
+//    int dV = 40 + (int)(th * (float)40 / 30.0f);
+    bleNeoPixelCentral.setDC(dC);
+//    bleNeoPixelCentral.setDV(dV);
+    int brightness = 32 + (int)(th * (float)32 / 30.0f);
+    bleNeoPixelCentral.setBrightness(brightness);
+}   
+
 // 初期化
 void setup()
 {
@@ -190,9 +208,16 @@ void loop()
                 led_show();
                 if(mode == MODE_POSTURE){
                     buzz_out(PTN_POSTURE);
+                    bleNeoPixelCentral.setPattern(PTN_FLUCTUATION);
                 }else{
                     buzz_out(PTN_HEART_RATE);
+                    bleNeoPixelCentral.setPattern(PTN_TWO_COLOR); // TODO
+                    //bleNeoPixelCentral.setPattern(PTN_HEART);
                 }
+            }
+            // 姿勢センサのデータをBLEで送信
+            if(mode == MODE_POSTURE){
+                sendPosture(th_p, th_r);
             }
         }
 #ifdef _DEBUG
