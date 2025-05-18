@@ -8,7 +8,8 @@ typedef enum{
     PTN_TWO_COLOR,  // ふたいろ
     PTN_FADE,       // ほたる
     PTN_ROUND,      // ぐるぐる
-    PTN_FLUCTUATION // ゆらめき
+    PTN_FLUCTUATION,// ゆらめき
+    PTN_HEART       // 心拍 (新規追加)
 } Iluminetion;
 
 // BLE-NeoPixcel制御クラス

@@ -184,7 +184,7 @@ bool BleNeoPixel::setChrU8(BLECharacteristic &chr, uint8_t &field, uint8_t value
         Serial.println("Not connected to BLE device");
         return false;
     }
-    if(chr.writeValue(value)) {
+    if(chr.writeValue(value, false)) {
         field = value;
         return true;
     }else{
@@ -199,7 +199,7 @@ bool BleNeoPixel::setChrU16(BLECharacteristic &chr, uint16_t &field, uint16_t va
         Serial.println("Not connected to BLE device");
         return false;
     }
-    if(chr.writeValue(value)) {
+    if(chr.writeValue(value, false)) {
         field = value;
         return true;
     }else{
