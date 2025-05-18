@@ -121,15 +121,12 @@ void sendPosture(float th_p, float th_r)
 {
     float th = max(fabs(th_p), fabs(th_r));
     if(th > 30.0f) th = 30.0f;
-    //int h = 0x1000 - (int)(th * (float)0x1000 / 30.0f);
-    //if(h < 0) h = 0;
+
+    // 色味の変化 (傾くほど赤く)
     int dC = 50 - (int)(th * (float)50 / 30.0f);
     if(dC < 0) dC = 0;
-//  int dV = 40 - (int)(th * (float)40 / 30.0f);
-//  if(dV < 0) dV = 0;
-//    int dV = 40 + (int)(th * (float)40 / 30.0f);
     bleNeoPixelCentral.setDC(dC);
-//    bleNeoPixelCentral.setDV(dV);
+    // 明るさの変化 (傾くほど明るく)
     int brightness = 32 + (int)(th * (float)32 / 30.0f);
     bleNeoPixelCentral.setBrightness(brightness);
 }   
