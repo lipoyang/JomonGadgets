@@ -2,9 +2,10 @@
 #include <Button.h>
 #include "BleNeoPixelCentral.h"
 #include "PostureSensor.h"
+#include "HeartSensor.h"
 #include "HeadBand.h"
 
-#define _DEBUG
+//#define _DEBUG
 
 // ピン番号
 #define PIN_HR    A0  // 心拍センサー
@@ -21,6 +22,8 @@
 BleNeoPixel bleNeoPixelCentral;
 // 姿勢センサ
 PostureSensor postureSensor;
+// 心拍センサ
+HeartSensor heartSensor;
 // 周期タイマ
 IntervalTimer interval1;
 // ボタン
@@ -156,6 +159,8 @@ void setup()
     bleNeoPixelCentral.begin();
     // 姿勢センサを開始
     postureSensor.begin(PIN_SS);
+    // 心拍センサを開始
+    heartSensor.begin(PIN_HR);
     // 周期タイマ開始
     interval1.set(100);
 }
@@ -165,6 +170,7 @@ void loop()
 {
     // BLE NeoPixel セントラルのタスク
     bleNeoPixelCentral.task();
+
     // 姿勢センサのタスク
     postureSensor.task();
     if(postureSensor.wasCalibrated()){
@@ -172,6 +178,15 @@ void loop()
     }
     float th_p = postureSensor.getPitch();
     float th_r = postureSensor.getRoll();
+
+    // 心拍センサのタスク
+    heartSensor.task();
+    if(heartSensor.isPulse()){
+        int bpm = heartSensor.getBPM();
+        Serial.print("BPM: ");
+        Serial.println(bpm);
+        bleNeoPixelCentral.setBPM(bpm);
+    }
 
     // 周期処理
     if(interval1.elapsed()){

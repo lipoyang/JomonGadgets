@@ -52,6 +52,7 @@ public:
             return false;
         }
     }
+    bool setBPM(uint8_t bpm){ return true /* setChrU8(chrBPM, BPM, bpm)*/ ; }
     bool isConnected() const { return _isConnected; }
 
 private:
@@ -76,6 +77,7 @@ private:
     BLECharacteristic chrDV        ; // CHR_U8 , BLERead | BLEWrite
     BLECharacteristic chrPattern   ; // CHR_U8 , BLERead | BLEWrite
     BLECharacteristic chrCommand   ; // CHR_U8 , BLEWrite
+    BLECharacteristic chrBPM       ; // CHR_U8 , BLEWrite
 
     uint8_t brightness;
     uint16_t H1;
@@ -89,4 +91,5 @@ private:
     uint8_t dC;
     uint8_t dV;
     Iluminetion pattern;
+    uint8_t BPM;
 };

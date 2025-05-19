@@ -20,6 +20,7 @@ CHR_U8  chrDC        ("6EA7F285-3202-F28A-C609-C48CD759AB90", BLERead | BLEWrite
 CHR_U8  chrDV        ("81765DA4-71CF-79BC-8E1E-A23130995444", BLERead | BLEWrite | BLEWriteWithoutResponse);
 CHR_U8  chrPattern   ("7D5C1067-D1A7-A8E8-9DD0-41CBE5E25F0A", BLERead | BLEWrite | BLEWriteWithoutResponse);
 CHR_U8  chrCommand   ("0CBB4F9C-652E-ABFC-E004-40572A9F55EF", BLEWrite);
+CHR_U8  chrBPM       ("8654C32F-6ACC-4848-A28F-039D1F8156C9", BLEWrite | BLEWriteWithoutResponse);
 
 // コマンド定数
 const uint8_t CMD_SAVE  = 0x80; // セーブ
@@ -77,6 +78,7 @@ void BleNeoPixel::begin(NeoPixelCtrl& controller)
     svcNeoPixel.addCharacteristic(chrDV        );
     svcNeoPixel.addCharacteristic(chrPattern   );
     svcNeoPixel.addCharacteristic(chrCommand   );
+    svcNeoPixel.addCharacteristic(chrBPM       );
     
     // サービスを追加
     BLE.addService(svcNeoPixel);
@@ -190,6 +192,12 @@ void BleNeoPixel::task()
                         Serial.print(command, HEX);
                         break;
                 }
+            }
+            // BPM
+            if (chrBPM.written())
+            {
+                uint8_t bpm = chrBPM.value();
+                // TODO controller->setBPM(bpm);
             }
             
         }else{
