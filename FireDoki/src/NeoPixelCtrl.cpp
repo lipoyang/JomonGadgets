@@ -118,6 +118,11 @@ void NeoPixelCtrl::setPattern (Iluminetion pattern)
         // 色2:橙
         H2 = C2_H;
         S2 = C2_S;
+        // 明るさ等を既定値に
+        setBrightness(DEF_BRIGHTNESS);
+        dC = DEF_DC;
+        dV = DEF_DV;
+
         if(pattern == PTN_HEART ){
             n_cnt = 100;
         }
@@ -145,6 +150,20 @@ void NeoPixelCtrl::setBPM(int bpm)
     // 色2: 橙～白
     H2 = (C2_H*(256 - ratio) + C2B_H*ratio) / 256;
     S2 = (C2_S*(256 - ratio) + C2B_S*ratio) / 256;
+}
+
+// 姿勢の設定 【縄文ガジェット用に追加】
+void NeoPixelCtrl::setPosture(int th)
+{
+    if(th > 30) th = 30;
+
+    // 色味の変化 (傾くほど赤く)
+    int c = 50 - (int)(th * (float)50 / 30.0f);
+    dC = (float)c / 100.0F;
+    
+    // 明るさの変化 (傾くほど明るく)
+    int brightness = 32 + th * 32 / 30;
+    setBrightness(brightness);
 }
 
 // 設定のセーブ
@@ -412,10 +431,13 @@ void NeoPixelCtrl::patternHeart()
     }else{
         ratio = 0;
     }
-
     // 2色の中間色
     int h = (H1*ratio + H2*(256 - ratio)) / 256;
     int s = (S1*ratio + S2*(256 - ratio)) / 256;
+
+    // 明るさ
+    int brightness = 32 - ratio / 16;
+    setBrightness(brightness);
     
     for(int i=0;i<LED_MAX;i++){
         pixels.setPixelColor(i, pixels.ColorHSV(h,s,255));

@@ -17,11 +17,11 @@
 // 色2: 橙
 #define C2_H    0x1000
 #define C2_S    255
-// 色1B: 橙
-#define C1B_H   0x2AD6
+// 色1B: 黄
+#define C1B_H   0x2000
 #define C1B_S   255
 // 色2B: 白
-#define C2B_H   0x1000
+#define C2B_H   0x2000
 #define C2B_S   0
 
 // その他の初期値
@@ -74,7 +74,8 @@ public:
 //  void setFluctuation(int h, int s, int v);
     void setFluctuation(int c, int v);
     void setPattern (Iluminetion pattern);
-    void setBPM(int bpm); //【縄文ガジェット用に追加】
+    void setBPM(int bpm);    //【縄文ガジェット用に追加】
+    void setPosture(int th); //【縄文ガジェット用に追加】
     // コマンド
     void save();
     void reset();

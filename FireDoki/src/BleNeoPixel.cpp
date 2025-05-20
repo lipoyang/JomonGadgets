@@ -206,19 +206,7 @@ void BleNeoPixel::task()
             if (chrPosture.written())
             {
                 int th = chrPosture.value();
-                if(th > 30) th = 30;
-
-                // 色味の変化 (傾くほど赤く)
-                int c = 50 - (int)(th * (float)50 / 30.0f);
-                if(c < 0) c = 0;
-                chrDC.writeValue(c);
-                int v = chrDV.value();
-                controller->setFluctuation(c, v);
-                
-                // 明るさの変化 (傾くほど明るく)
-                int brightness = 32 + th * 32 / 30;
-                chrBrightness.writeValue(brightness);
-                controller->setBrightness(brightness);
+                controller->setPosture(th);
             }
         }else{
             isConnected = false;
