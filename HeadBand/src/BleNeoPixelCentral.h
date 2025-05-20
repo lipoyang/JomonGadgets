@@ -9,7 +9,7 @@ typedef enum{
     PTN_FADE,       // ほたる
     PTN_ROUND,      // ぐるぐる
     PTN_FLUCTUATION,// ゆらめき
-    PTN_HEART       // 心拍 (新規追加)
+    PTN_HEART       // 心拍     【縄文ガジェット用に追加】
 } Iluminetion;
 
 // BLE-NeoPixcel制御クラス
@@ -52,7 +52,7 @@ public:
             return false;
         }
     }
-    bool setBPM(uint8_t bpm){ return true /* setChrU8(chrBPM, BPM, bpm)*/ ; }
+    bool setBPM(uint8_t bpm){ return setChrU8(chrBPM, BPM, bpm); } //【縄文ガジェット用に追加】
     bool isConnected() const { return _isConnected; }
 
 private:
@@ -77,6 +77,7 @@ private:
     BLECharacteristic chrDV        ; // CHR_U8 , BLERead | BLEWrite
     BLECharacteristic chrPattern   ; // CHR_U8 , BLERead | BLEWrite
     BLECharacteristic chrCommand   ; // CHR_U8 , BLEWrite
+     //【縄文ガジェット用に追加】
     BLECharacteristic chrBPM       ; // CHR_U8 , BLEWrite
 
     uint8_t brightness;
@@ -91,5 +92,5 @@ private:
     uint8_t dC;
     uint8_t dV;
     Iluminetion pattern;
-    uint8_t BPM;
+    uint8_t BPM; //【縄文ガジェット用に追加】
 };

@@ -11,6 +11,28 @@
 #define POWER_ON_OFF            // NeoPixelの電源ON/OFFをFET等で制御
 #define POWER_PIN       D1      // NeoPixelの電源制御ピン
 
+// 色1: 赤
+#define C1_H    0x0000
+#define C1_S    255
+// 色2: 橙
+#define C2_H    0x1000
+#define C2_S    255
+// 色1B: 橙
+#define C1B_H   0x2AD6
+#define C1B_S   255
+// 色2B: 白
+#define C2B_H   0x1000
+#define C2B_S   0
+
+// その他の初期値
+#define DEF_BRIGHTNESS  32
+#define DEF_T_2COLOR    4000
+#define DEF_T_FADE      4000
+#define DEF_T_ROUND     2000
+#define DEF_T_FLUCT     30
+#define DEF_DC          0.5F
+#define DEF_DV          0.4F
+
 // ゆらぎのHSV
 enum{
 //  F_HUE = 0,
@@ -29,7 +51,8 @@ typedef enum{
     PTN_TWO_COLOR,  // ふたいろ
     PTN_FADE,       // ほたる
     PTN_ROUND,      // ぐるぐる
-    PTN_FLUCTUATION // ゆらめき
+    PTN_FLUCTUATION,// ゆらめき
+    PTN_HEART       // 心拍 【縄文ガジェット用に追加】
 } Iluminetion;
 
 // NeoPixelコントローラ
@@ -50,6 +73,7 @@ public:
 //  void setFluctuation(int h, int s, int v);
     void setFluctuation(int c, int v);
     void setPattern (Iluminetion pattern);
+    void setBPM(int bpm); //【縄文ガジェット用に追加】
     // コマンド
     void save();
     void reset();
@@ -89,6 +113,8 @@ private:
     float dC;           // 色のゆらめき     (0.0 - 1.0)
     float dV;           // 明るさのゆらめき (0.0 - 1.0)
     Iluminetion pattern; // 発光パターン
+    int BPM;            // 心拍数 (bpm)     【縄文ガジェット用に追加】
+    int T_BPM;          // 心拍の周期 [ms]  【縄文ガジェット用に追加】
     
     // 各パターンの処理
     void patternOff();      // けす
@@ -97,6 +123,7 @@ private:
     void patternFade();     // ほたる
     void patternRound();    // ぐるぐる
     void patternFluction(); // ゆらめき
+    void patternHeart();    // 心拍 【縄文ガジェット用に追加】
     
     // NeoPixel
     Adafruit_NeoPixel pixels;

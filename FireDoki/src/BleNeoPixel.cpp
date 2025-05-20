@@ -20,6 +20,7 @@ CHR_U8  chrDC        ("6EA7F285-3202-F28A-C609-C48CD759AB90", BLERead | BLEWrite
 CHR_U8  chrDV        ("81765DA4-71CF-79BC-8E1E-A23130995444", BLERead | BLEWrite | BLEWriteWithoutResponse);
 CHR_U8  chrPattern   ("7D5C1067-D1A7-A8E8-9DD0-41CBE5E25F0A", BLERead | BLEWrite | BLEWriteWithoutResponse);
 CHR_U8  chrCommand   ("0CBB4F9C-652E-ABFC-E004-40572A9F55EF", BLEWrite);
+//【縄文ガジェット用に追加】
 CHR_U8  chrBPM       ("8654C32F-6ACC-4848-A28F-039D1F8156C9", BLEWrite | BLEWriteWithoutResponse);
 
 // コマンド定数
@@ -78,7 +79,7 @@ void BleNeoPixel::begin(NeoPixelCtrl& controller)
     svcNeoPixel.addCharacteristic(chrDV        );
     svcNeoPixel.addCharacteristic(chrPattern   );
     svcNeoPixel.addCharacteristic(chrCommand   );
-    svcNeoPixel.addCharacteristic(chrBPM       );
+    svcNeoPixel.addCharacteristic(chrBPM       ); //【縄文ガジェット用に追加】
     
     // サービスを追加
     BLE.addService(svcNeoPixel);
@@ -193,17 +194,39 @@ void BleNeoPixel::task()
                         break;
                 }
             }
-            // BPM
+            // BPM  【縄文ガジェット用に追加】
             if (chrBPM.written())
             {
                 uint8_t bpm = chrBPM.value();
-                // TODO controller->setBPM(bpm);
+                controller->setBPM(bpm);
             }
             
         }else{
             isConnected = false;
             Serial.print(F("BLE Disconnected from central: "));
             Serial.println(central.address());
+            
+            // 発光パターンを戻す　【縄文ガジェット用に追加】
+            uint8_t bPattern = chrPattern.value();
+            Iluminetion pattern = (Iluminetion)bPattern;
+            Serial.print("pattern: ");
+            Serial.println(pattern);
+            if(pattern == PTN_HEART || pattern == PTN_FLUCTUATION){
+                chrH1        .writeValue(C1_H);
+                chrS1        .writeValue(C1_S);
+                chrH2        .writeValue(C2_H);
+                chrS2        .writeValue(C2_S);
+                chrDC        .writeValue((uint8_t)(DEF_DC * 100.0F + 0.5F));
+                chrBrightness.writeValue(DEF_BRIGHTNESS);
+                controller->setColor1(C1_H, C1_S);
+                controller->setColor2(C2_H, C2_S);
+                controller->setFluctuation(
+                    (int)(DEF_DC * 100.0F + 0.5F), (int)(DEF_DV * 100.0F + 0.5F));
+                controller->setBrightness(DEF_BRIGHTNESS);
+                controller->setPattern(PTN_FLUCTUATION);
+                Serial.print("pattern: ");
+                Serial.println(pattern);
+            }
         }
     }
 }

@@ -26,18 +26,18 @@ typedef struct
 
 // 設定値の初期値
 static const PrefsData INIT_DATA = {
-    .brightness = 32,
-    .H1         = 0x0000,
-    .S1         = 255,
-    .H2         = 0x1000,
-    .S2         = 255,
-    .T_2color   = 4000,
-    .T_fade     = 4000,
-    .T_round    = 2000,
-    .T_fluct    = 30,
-    .dC         = 0.5F,
-    .dV         = 0.4F,
-    .pattern    = PTN_ONE_COLOR,
+    .brightness = DEF_BRIGHTNESS,
+    .H1         = C1_H,
+    .S1         = C1_S,
+    .H2         = C2_H,
+    .S2         = C2_S,
+    .T_2color   = DEF_T_2COLOR,
+    .T_fade     = DEF_T_FADE,
+    .T_round    = DEF_T_ROUND,
+    .T_fluct    = DEF_T_FLUCT,
+    .dC         = DEF_DC,
+    .dV         = DEF_DV,
+    .pattern    = PTN_FLUCTUATION,
     .magicNumber = MAGIC_NUMBER
 };
 
@@ -109,6 +109,42 @@ void NeoPixelCtrl::setPattern (Iluminetion pattern)
 {
     n_cnt = 0;
     this->pattern = pattern;
+
+    // 【縄文ガジェット用に追加】
+    if(pattern == PTN_HEART || pattern == PTN_FLUCTUATION){ // TODO
+        // 色1:赤
+        H1 = 0x0000;
+        S1 = 255;
+        // 色2:橙
+        H2 = 0x1000;
+        S2 = 255;
+        if(pattern == PTN_HEART ){
+            n_cnt = 100;
+        }
+    }
+}
+
+// BPMの設定    【縄文ガジェット用に追加】
+void NeoPixelCtrl::setBPM(int bpm)
+{
+    if(bpm < 30) bpm = 30;
+    if(bpm > 220) bpm = 220;
+    BPM = bpm;
+    T_BPM = 60000 / bpm;
+    n_cnt = 0;
+
+    // ratio = 0 ～ 256
+    if(bpm < 60) bpm = 60;
+    if(bpm > 120) bpm = 120;
+    int ratio = 256 * (bpm - 60) / 60;
+
+    // 色1: 赤～黄
+    H1 = (C1_H*(256 - ratio) + C1B_H*ratio) / 256;
+    S1 = (C1_S*(256 - ratio) + C1B_S*ratio) / 256;
+
+    // 色2: 橙～白
+    H2 = (C2_H*(256 - ratio) + C2B_H*ratio) / 256;
+    S2 = (C2_S*(256 - ratio) + C2B_S*ratio) / 256;
 }
 
 // 設定のセーブ
@@ -248,6 +284,10 @@ void NeoPixelCtrl::task()
         case PTN_FLUCTUATION:
             patternFluction();  // ゆらめき
             break;
+        //【縄文ガジェット用に追加】
+        case PTN_HEART:
+            patternHeart();     // 心拍
+            break;
         }
         // LEDの色更新
         pixels.show();
@@ -356,6 +396,28 @@ void NeoPixelCtrl::patternFluction()
             pixels.setPixelColor(i, pixels.ColorHSV(h,s,v));
         }
     }
+}
+
+// 心拍 【縄文ガジェット用に追加】
+void NeoPixelCtrl::patternHeart()
+{
+    // ratio = 0 ～ 256 (周期 T_BPMで1回)
+    int ratio;
+    if(DELTA_T * n_cnt < T_BPM){
+        ratio = 256 * (DELTA_T * n_cnt) / T_BPM;
+        n_cnt++;
+    }else{
+        ratio = 0;
+    }
+
+    // 2色の中間色
+    int h = (H1*ratio + H2*(256 - ratio)) / 256;
+    int s = (S1*ratio + S2*(256 - ratio)) / 256;
+    
+    for(int i=0;i<LED_MAX;i++){
+        pixels.setPixelColor(i, pixels.ColorHSV(h,s,255));
+    }
+    n_cnt--; // 後で++されので-1しておく (小細工)
 }
 
 // 設定の取得

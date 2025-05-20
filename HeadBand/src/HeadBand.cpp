@@ -185,7 +185,9 @@ void loop()
         int bpm = heartSensor.getBPM();
         Serial.print("BPM: ");
         Serial.println(bpm);
-        bleNeoPixelCentral.setBPM(bpm);
+        if(isConnected && mode == MODE_HEART_RATE){
+            bleNeoPixelCentral.setBPM(bpm);
+        }
     }
 
     // 周期処理
@@ -223,8 +225,7 @@ void loop()
                     bleNeoPixelCentral.setPattern(PTN_FLUCTUATION);
                 }else{
                     buzz_out(PTN_HEART_RATE);
-                    bleNeoPixelCentral.setPattern(PTN_TWO_COLOR); // TODO
-                    //bleNeoPixelCentral.setPattern(PTN_HEART);
+                    bleNeoPixelCentral.setPattern(PTN_HEART);
                 }
             }
             // 姿勢センサのデータをBLEで送信
