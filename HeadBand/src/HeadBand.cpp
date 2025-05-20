@@ -73,11 +73,11 @@ void led_show()
 void buzz_out(int pattern)
 {
     switch(pattern){
-        case PTN_POWER_ON:    // 電源ON
+        case BUZZ_POWER_ON:    // 電源ON
             tone(PIN_BUZZ, F_C5, T_BUZZ);
             delay(T_BUZZ);
             break;
-        case PTN_CONNECT:     // 接続
+        case BUZZ_CONNECT:     // 接続
             tone(PIN_BUZZ, F_C4, T_BUZZ);
             delay(T_BUZZ);
             tone(PIN_BUZZ, F_D4, T_BUZZ);
@@ -85,7 +85,7 @@ void buzz_out(int pattern)
             tone(PIN_BUZZ, F_E4, T_BUZZ);
             delay(T_BUZZ);
             break;
-        case PTN_DISCONNECT:  // 切断
+        case BUZZ_DISCONNECT:  // 切断
             tone(PIN_BUZZ, F_E4, T_BUZZ);
             delay(T_BUZZ);
             tone(PIN_BUZZ, F_D4, T_BUZZ);
@@ -93,23 +93,23 @@ void buzz_out(int pattern)
             tone(PIN_BUZZ, F_C4, T_BUZZ);
             delay(T_BUZZ);
             break;
-        case PTN_HEART_RATE:  // 心拍モード
+        case BUZZ_HEART_RATE:  // 心拍モード
             tone(PIN_BUZZ, F_G4, T_BUZZ_SHORT);
             delay(T_BUZZ);
             tone(PIN_BUZZ, F_G4, T_BUZZ_SHORT);
             delay(T_BUZZ_SHORT);
             break;
-        case PTN_POSTURE:     // 姿勢モード
+        case BUZZ_POSTURE:     // 姿勢モード
             tone(PIN_BUZZ, F_G4, T_BUZZ);
             delay(T_BUZZ);
             break;
-        case PTN_CALIBRATING: // キャリブレーション中
+        case BUZZ_CALIBRATING: // キャリブレーション中
             tone(PIN_BUZZ, F_C4, T_BUZZ);
             delay(T_BUZZ);
             tone(PIN_BUZZ, F_D4, T_BUZZ);
             delay(T_BUZZ);
             break;
-        case PTN_CALIBRATED:  // キャリブレーション完了
+        case BUZZ_CALIBRATED:  // キャリブレーション完了
             tone(PIN_BUZZ, F_D4, T_BUZZ);
             delay(T_BUZZ);
             tone(PIN_BUZZ, F_C4, T_BUZZ);
@@ -153,7 +153,7 @@ void setup()
     led_show();
 
     // 起動音
-    buzz_out(PTN_POWER_ON);
+    buzz_out(BUZZ_POWER_ON);
     
     // BLE NeoPixel セントラルを開始
     bleNeoPixelCentral.begin();
@@ -174,7 +174,7 @@ void loop()
     // 姿勢センサのタスク
     postureSensor.task();
     if(postureSensor.wasCalibrated()){
-        buzz_out(PTN_CALIBRATED);
+        buzz_out(BUZZ_CALIBRATED);
     }
     float th_p = postureSensor.getPitch();
     float th_r = postureSensor.getRoll();
@@ -197,21 +197,26 @@ void loop()
             isConnected = true;
             Serial.println("BLE connected");
             led_show();
-            buzz_out(PTN_CONNECT);
+            buzz_out(BUZZ_CONNECT);
+            if(mode == MODE_POSTURE){
+                bleNeoPixelCentral.setPattern(PTN_POSTURE);
+            }else{
+                bleNeoPixelCentral.setPattern(PTN_HEART);
+            }
         }
         // 切断時
         else if(isConnected && !bleNeoPixelCentral.isConnected()){
             isConnected = false;
             Serial.println("BLE disconnected");
             led_show();
-            buzz_out(PTN_DISCONNECT);
+            buzz_out(BUZZ_DISCONNECT);
         }
         // 接続中
         if(isConnected){
             button.read();
             // ボタン長押しで姿勢センサのキャリブ開始
             if(button.pressedFor(T_LONG_PRESS, T_LONG_INTERVAL)){
-                buzz_out(PTN_CALIBRATING);
+                buzz_out(BUZZ_CALIBRATING);
                 Serial.println("Calibrating...");
                 postureSensor.startCalibration();
             }
@@ -221,10 +226,10 @@ void loop()
                 mode = (mode + 1) % 2; // MODE_POSTURE <-> MODE_HEART_RATE
                 led_show();
                 if(mode == MODE_POSTURE){
-                    buzz_out(PTN_POSTURE);
-                    bleNeoPixelCentral.setPattern(PTN_FLUCTUATION);
+                    buzz_out(BUZZ_POSTURE);
+                    bleNeoPixelCentral.setPattern(PTN_POSTURE);
                 }else{
-                    buzz_out(PTN_HEART_RATE);
+                    buzz_out(BUZZ_HEART_RATE);
                     bleNeoPixelCentral.setPattern(PTN_HEART);
                 }
             }

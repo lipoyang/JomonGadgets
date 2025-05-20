@@ -9,7 +9,8 @@ typedef enum{
     PTN_FADE,       // ほたる
     PTN_ROUND,      // ぐるぐる
     PTN_FLUCTUATION,// ゆらめき
-    PTN_HEART       // 心拍     【縄文ガジェット用に追加】
+    PTN_HEART,      // 心拍     【縄文ガジェット用に追加】
+    PTN_POSTURE     // 姿勢     【縄文ガジェット用に追加】
 } Iluminetion;
 
 // BLE-NeoPixcel制御クラス

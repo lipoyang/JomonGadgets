@@ -11,13 +11,13 @@
 #define F_C5    523
 
 // ブザーのパターン
-#define PTN_POWER_ON    0
-#define PTN_CONNECT     1
-#define PTN_DISCONNECT  2
-#define PTN_HEART_RATE  3
-#define PTN_POSTURE     4
-#define PTN_CALIBRATING 5
-#define PTN_CALIBRATED  6
+#define BUZZ_POWER_ON    0
+#define BUZZ_CONNECT     1
+#define BUZZ_DISCONNECT  2
+#define BUZZ_HEART_RATE  3
+#define BUZZ_POSTURE     4
+#define BUZZ_CALIBRATING 5
+#define BUZZ_CALIBRATED  6
 
 // ブザーの長さ
 #define T_BUZZ          200

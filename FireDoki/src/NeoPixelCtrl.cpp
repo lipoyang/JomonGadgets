@@ -111,13 +111,13 @@ void NeoPixelCtrl::setPattern (Iluminetion pattern)
     this->pattern = pattern;
 
     // 【縄文ガジェット用に追加】
-    if(pattern == PTN_HEART || pattern == PTN_FLUCTUATION){ // TODO
+    if(pattern == PTN_HEART || pattern == PTN_POSTURE){
         // 色1:赤
-        H1 = 0x0000;
-        S1 = 255;
+        H1 = C1_H;
+        S1 = C1_S;
         // 色2:橙
-        H2 = 0x1000;
-        S2 = 255;
+        H2 = C2_H;
+        S2 = C2_S;
         if(pattern == PTN_HEART ){
             n_cnt = 100;
         }
@@ -288,6 +288,9 @@ void NeoPixelCtrl::task()
         case PTN_HEART:
             patternHeart();     // 心拍
             break;
+        case PTN_POSTURE:
+            patternPosture();   // 姿勢
+            break;
         }
         // LEDの色更新
         pixels.show();
@@ -419,6 +422,29 @@ void NeoPixelCtrl::patternHeart()
     }
     n_cnt--; // 後で++されので-1しておく (小細工)
 }
+
+// 姿勢 【縄文ガジェット用に追加】
+void NeoPixelCtrl::patternPosture()
+{
+    static int cnt = 0;
+    cnt++;
+    if(cnt >= T_fluct / DELTA_T){
+        cnt = 0;
+        for(int i=0;i<LED_MAX;i++){
+            
+            // ゆらぎの計算
+            float fc = fluct[i][F_COL].calc(); // 0.0 ～ 1.0
+            float fv = fluct[i][F_VAL].calc(); // 0.0 ～ 1.0
+            
+            int h = (int)((float)H1 * (1.0F - dC * fc) + (float)H2 * dC * fc);
+            int s = (int)((float)S1 * (1.0F - dC * fc) + (float)S2 * dC * fc);
+            int v = (int)( 255.0F   * (1.0F - dV * fv));
+            
+            pixels.setPixelColor(i, pixels.ColorHSV(h,s,v));
+        }
+    }
+}
+
 
 // 設定の取得
 void NeoPixelCtrl::getParams(

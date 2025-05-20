@@ -209,9 +209,7 @@ void BleNeoPixel::task()
             // 発光パターンを戻す　【縄文ガジェット用に追加】
             uint8_t bPattern = chrPattern.value();
             Iluminetion pattern = (Iluminetion)bPattern;
-            Serial.print("pattern: ");
-            Serial.println(pattern);
-            if(pattern == PTN_HEART || pattern == PTN_FLUCTUATION){
+            if(pattern == PTN_HEART || pattern == PTN_POSTURE){
                 chrH1        .writeValue(C1_H);
                 chrS1        .writeValue(C1_S);
                 chrH2        .writeValue(C2_H);
@@ -224,8 +222,6 @@ void BleNeoPixel::task()
                     (int)(DEF_DC * 100.0F + 0.5F), (int)(DEF_DV * 100.0F + 0.5F));
                 controller->setBrightness(DEF_BRIGHTNESS);
                 controller->setPattern(PTN_FLUCTUATION);
-                Serial.print("pattern: ");
-                Serial.println(pattern);
             }
         }
     }
