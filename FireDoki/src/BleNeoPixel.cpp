@@ -22,6 +22,7 @@ CHR_U8  chrPattern   ("7D5C1067-D1A7-A8E8-9DD0-41CBE5E25F0A", BLERead | BLEWrite
 CHR_U8  chrCommand   ("0CBB4F9C-652E-ABFC-E004-40572A9F55EF", BLEWrite);
 //【縄文ガジェット用に追加】
 CHR_U8  chrBPM       ("8654C32F-6ACC-4848-A28F-039D1F8156C9", BLEWrite | BLEWriteWithoutResponse);
+CHR_U8  chrPosture   ("D9A4A2E9-46FB-5D3C-2117-4C845B474766", BLEWrite | BLEWriteWithoutResponse);
 
 // コマンド定数
 const uint8_t CMD_SAVE  = 0x80; // セーブ
@@ -80,6 +81,7 @@ void BleNeoPixel::begin(NeoPixelCtrl& controller)
     svcNeoPixel.addCharacteristic(chrPattern   );
     svcNeoPixel.addCharacteristic(chrCommand   );
     svcNeoPixel.addCharacteristic(chrBPM       ); //【縄文ガジェット用に追加】
+    svcNeoPixel.addCharacteristic(chrPosture   ); //【縄文ガジェット用に追加】
     
     // サービスを追加
     BLE.addService(svcNeoPixel);
@@ -200,7 +202,24 @@ void BleNeoPixel::task()
                 uint8_t bpm = chrBPM.value();
                 controller->setBPM(bpm);
             }
-            
+            // 姿勢  【縄文ガジェット用に追加】
+            if (chrPosture.written())
+            {
+                int th = chrPosture.value();
+                if(th > 30) th = 30;
+
+                // 色味の変化 (傾くほど赤く)
+                int c = 50 - (int)(th * (float)50 / 30.0f);
+                if(c < 0) c = 0;
+                chrDC.writeValue(c);
+                int v = chrDV.value();
+                controller->setFluctuation(c, v);
+                
+                // 明るさの変化 (傾くほど明るく)
+                int brightness = 32 + th * 32 / 30;
+                chrBrightness.writeValue(brightness);
+                controller->setBrightness(brightness);
+            }
         }else{
             isConnected = false;
             Serial.print(F("BLE Disconnected from central: "));

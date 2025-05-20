@@ -53,7 +53,10 @@ public:
             return false;
         }
     }
-    bool setBPM(uint8_t bpm){ return setChrU8(chrBPM, BPM, bpm); } //【縄文ガジェット用に追加】
+    //【縄文ガジェット用に追加】
+    bool setBPM(uint8_t bpm){ return setChrU8(chrBPM, BPM, bpm); }
+    bool setPosture(uint8_t th){ return setChrU8(chrPosture, posture, th); }
+    
     bool isConnected() const { return _isConnected; }
 
 private:
@@ -80,6 +83,7 @@ private:
     BLECharacteristic chrCommand   ; // CHR_U8 , BLEWrite
      //【縄文ガジェット用に追加】
     BLECharacteristic chrBPM       ; // CHR_U8 , BLEWrite
+    BLECharacteristic chrPosture   ; // CHR_U8 , BLEWrite
 
     uint8_t brightness;
     uint16_t H1;
@@ -93,5 +97,6 @@ private:
     uint8_t dC;
     uint8_t dV;
     Iluminetion pattern;
-    uint8_t BPM; //【縄文ガジェット用に追加】
+    uint8_t BPM;     //【縄文ガジェット用に追加】
+    uint8_t posture; //【縄文ガジェット用に追加】
 };

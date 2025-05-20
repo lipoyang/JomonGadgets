@@ -119,19 +119,12 @@ void buzz_out(int pattern)
     pinMode(PIN_BUZZ, INPUT); // ブザーOFF
 }
 
-// 姿勢に応じた発光色データの送信
+// 姿勢データの送信
 void sendPosture(float th_p, float th_r)
 {
     float th = max(fabs(th_p), fabs(th_r));
     if(th > 30.0f) th = 30.0f;
-
-    // 色味の変化 (傾くほど赤く)
-    int dC = 50 - (int)(th * (float)50 / 30.0f);
-    if(dC < 0) dC = 0;
-    bleNeoPixelCentral.setDC(dC);
-    // 明るさの変化 (傾くほど明るく)
-    int brightness = 32 + (int)(th * (float)32 / 30.0f);
-    bleNeoPixelCentral.setBrightness(brightness);
+    bleNeoPixelCentral.setPosture((int)th);
 }   
 
 // 初期化

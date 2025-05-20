@@ -17,6 +17,7 @@ const char* UUID_chrDV         = "81765DA4-71CF-79BC-8E1E-A23130995444";
 const char* UUID_chrPattern    = "7D5C1067-D1A7-A8E8-9DD0-41CBE5E25F0A";
 const char* UUID_chrCommand    = "0CBB4F9C-652E-ABFC-E004-40572A9F55EF";
 const char* UUID_chrBPM        = "8654C32F-6ACC-4848-A28F-039D1F8156C9"; //【縄文ガジェット用に追加】
+const char* UUID_chrPosture    = "D9A4A2E9-46FB-5D3C-2117-4C845B474766"; //【縄文ガジェット用に追加】
 
 // コマンド定数
 const uint8_t CMD_SAVE  = 0x80; // セーブ
@@ -101,6 +102,7 @@ void BleNeoPixel::onConnect()
     chrPattern    = peripheral.characteristic(UUID_chrPattern   );
     chrCommand    = peripheral.characteristic(UUID_chrCommand   );
     chrBPM        = peripheral.characteristic(UUID_chrBPM       ); //【縄文ガジェット用に追加】
+    chrPosture    = peripheral.characteristic(UUID_chrPosture   ); //【縄文ガジェット用に追加】
 
     // キャラクタリスティックのREAD
     Serial.println("Reading characteristics...");
