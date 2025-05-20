@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "HeartSensor.h"
 
-#define _DEBUG
+//#define _DEBUG
 #define PIN_TEST   D4
 
 static const int   DELTA_T_MSEC = 10; //[msec]

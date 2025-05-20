@@ -185,6 +185,23 @@ void loop()
 
     // 周期処理
     if(interval1.elapsed()){
+        // ボタン読み取り
+        bool pressed_short = false;
+        bool pressed_long  = false;
+        button.read();
+        if(button.pressedFor(T_LONG_PRESS, T_LONG_INTERVAL)){
+            pressed_long = true;
+        }else if(button.wasReleased()){
+            pressed_short = true;
+        }
+        
+        // ボタン長押しで姿勢センサのキャリブ開始
+        if(pressed_long){
+            buzz_out(BUZZ_CALIBRATING);
+            Serial.println("Calibrating...");
+            postureSensor.startCalibration();
+        }
+
         // 接続時
         if(!isConnected && bleNeoPixelCentral.isConnected()){
             isConnected = true;
@@ -206,15 +223,8 @@ void loop()
         }
         // 接続中
         if(isConnected){
-            button.read();
-            // ボタン長押しで姿勢センサのキャリブ開始
-            if(button.pressedFor(T_LONG_PRESS, T_LONG_INTERVAL)){
-                buzz_out(BUZZ_CALIBRATING);
-                Serial.println("Calibrating...");
-                postureSensor.startCalibration();
-            }
             // ボタン短押しでモード切替
-            else if(button.wasReleased()){
+            if(pressed_short){
                 Serial.println("Button pressed");
                 mode = (mode + 1) % 2; // MODE_POSTURE <-> MODE_HEART_RATE
                 led_show();

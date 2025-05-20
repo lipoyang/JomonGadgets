@@ -104,6 +104,7 @@ void BleNeoPixel::onConnect()
     chrBPM        = peripheral.characteristic(UUID_chrBPM       ); //【縄文ガジェット用に追加】
     chrPosture    = peripheral.characteristic(UUID_chrPosture   ); //【縄文ガジェット用に追加】
 
+#if 0
     // キャラクタリスティックのREAD
     Serial.println("Reading characteristics...");
     if(chrBrightness.readValue(brightness)) {
@@ -180,6 +181,7 @@ void BleNeoPixel::onConnect()
     }else{
         Serial.println("chrPattern read failed");
     }
+#endif
 }
 
 bool BleNeoPixel::setChrU8(BLECharacteristic &chr, uint8_t &field, uint8_t value)
